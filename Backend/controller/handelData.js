@@ -1,6 +1,7 @@
 import Evaluation from "../model/data.js"
 import BasicEmployeeInfo from "../model/basicEmployeeInfo.js"
 import fs from 'fs';
+import path from 'path';
 import cloudinary from "../server.js";
 
 // Helper function to parse YYYY-MM date format from frontend
@@ -119,53 +120,71 @@ const filterDataForRole = (data, userRole) => {
   return filteredData;
 };
 
-// Function to upload file to Cloudinary
+// Function to upload file to Cloudinary with local storage fallback
 const uploadToCloudinary = async (filePath, employeeCode, fieldName) => {
   try {
-    console.log(`[CLOUDINARY] Starting upload process...`);
-    console.log(`[CLOUDINARY] File path: ${filePath}`);
-    console.log(`[CLOUDINARY] Employee: ${employeeCode}, Field: ${fieldName}`);
-    
-    // Check if file exists
+    const cloudinaryKey = process.env.CLOUDINARY_KEY;
+    const isCloudinaryConfigured = cloudinaryKey && cloudinaryKey !== 'your_cloudinary_key';
+
+    // Check if local file exists
     if (!fs.existsSync(filePath)) {
       throw new Error(`File not found at path: ${filePath}`);
     }
-    
-    // Determine the correct resource type based on file extension
-    const fileExtension = filePath.split('.').pop().toLowerCase();
-    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
-    const isImage = imageExtensions.includes(fileExtension);
-    
-    const resourceType = isImage ? 'image' : 'raw';
-    console.log(`[CLOUDINARY] File extension: ${fileExtension}`);
-    console.log(`[CLOUDINARY] Is image: ${isImage}`);
-    console.log(`[CLOUDINARY] Using resource_type: ${resourceType}`);
-    
-    // Upload to Cloudinary
-    const result = await cloudinary.uploader.upload(filePath, {
-      resource_type: resourceType,
-      folder: `employees/${employeeCode}`,
-      public_id: `${fieldName}-${Date.now()}`
-    });
-    
-    console.log(`[CLOUDINARY] ✅ Upload successful!`);
-    console.log(`[CLOUDINARY] URL: ${result.secure_url}`);
-    console.log(`[CLOUDINARY] Returned resource_type: ${result.resource_type}`);
-    console.log(`[CLOUDINARY] Format: ${result.format}`);
-    
-    // Delete the file from local storage
-    fs.unlinkSync(filePath);
-    console.log(`[CLOUDINARY] Local file deleted`);
-    
-    return result.secure_url;
+
+    if (isCloudinaryConfigured) {
+      console.log(`[CLOUDINARY] Uploading to Cloudinary for employee: ${employeeCode}, field: ${fieldName}...`);
+      const fileExtension = filePath.split('.').pop().toLowerCase();
+      const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+      const isImage = imageExtensions.includes(fileExtension);
+      const resourceType = isImage ? 'image' : 'raw';
+
+      const result = await cloudinary.uploader.upload(filePath, {
+        resource_type: resourceType,
+        folder: `employees/${employeeCode}`,
+        public_id: `${fieldName}-${Date.now()}`
+      });
+
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+
+      console.log(`[CLOUDINARY] ✅ Cloudinary upload successful: ${result.secure_url}`);
+      return result.secure_url;
+    } else {
+      console.log(`[LOCAL STORAGE] Cloudinary key not configured. Saving file locally...`);
+      const destDir = 'uploads/documents';
+      if (!fs.existsSync(destDir)) {
+        fs.mkdirSync(destDir, { recursive: true });
+      }
+
+      const fileName = path.basename(filePath);
+      const destPath = path.join(destDir, fileName);
+      fs.copyFileSync(filePath, destPath);
+
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+
+      const localUrl = `/uploads/documents/${fileName}`;
+      console.log(`[LOCAL STORAGE] ✅ Saved file locally: ${localUrl}`);
+      return localUrl;
+    }
   } catch (error) {
-    console.error('[CLOUDINARY] ❌ Upload failed!');
-    console.error('[CLOUDINARY] Error:', error.message);
-    
-    // Delete the file from local storage if upload fails
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-      console.log('[CLOUDINARY] Cleaned up local file after error');
+    console.error('[FILE UPLOAD] ⚠️ Upload error, attempting local fallback:', error.message);
+    try {
+      if (fs.existsSync(filePath)) {
+        const destDir = 'uploads/documents';
+        if (!fs.existsSync(destDir)) {
+          fs.mkdirSync(destDir, { recursive: true });
+        }
+        const fileName = path.basename(filePath);
+        const destPath = path.join(destDir, fileName);
+        fs.copyFileSync(filePath, destPath);
+        fs.unlinkSync(filePath);
+        return `/uploads/documents/${fileName}`;
+      }
+    } catch (fallbackError) {
+      console.error('[FILE UPLOAD] ❌ Local fallback error:', fallbackError.message);
     }
     throw error;
   }
