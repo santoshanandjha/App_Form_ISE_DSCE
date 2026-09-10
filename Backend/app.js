@@ -29,7 +29,7 @@ app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (mobile apps, Postman, etc.)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin) || origin.endsWith('.netlify.app') || origin.endsWith('.loca.lt')) {
+        if (allowedOrigins.includes(origin) || origin.endsWith('.netlify.app') || origin.endsWith('.github.io') || origin.endsWith('.trycloudflare.com') || origin.endsWith('.loca.lt')) {
             callback(null, true);
         } else {
             console.warn(`CORS blocked origin: ${origin}`);
