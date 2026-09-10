@@ -1,0 +1,52 @@
+services:
+  # Backend Service
+  - type: web
+    name: ams-backend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: cd Backend && npm install
+    startCommand: cd Backend && node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CLIENT_URL
+        value: https://amsdsce.com,https://www.amsdsce.com,https://ams-frontend-v8z1.onrender.com
+      - key: CLOUDINARY_NAME
+        sync: false
+      - key: CLOUDINARY_KEY
+        sync: false
+      - key: CLOUDINARY_SECRET
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: FROM_EMAIL
+        sync: false
+      - key: SMTP_EMAIL
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+
+  # Frontend Service (Static Site)
+  - type: web
+    name: ams-frontend
+    env: static
+    buildCommand: cd Frontend && npm install && npm run build
+    staticPublishPath: ./Frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://api.amsdsce.com/app
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

@@ -1,0 +1,69 @@
+import React, { useState } from 'react';
+import LoginActivityLog from '../components/LoginActivityLog';
+import { useSelector } from 'react-redux';
+
+const Page0 = ({onNext}) => {
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const userRole = useSelector((state) => state.auth.role);
+
+  return (
+    <div className="max-w-4xl mx-auto p-8">
+      <div className="border border-gray-200 rounded-lg shadow-md p-8">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-blue-600 mb-2">Faculty Performance Appraisal</h1>
+          <p className="text-gray-500">Please read all instructions carefully before proceeding</p>
+        </div>
+        
+        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+          <p><strong>Important:</strong> Please ensure that you read all instructions thoroughly before starting the appraisal process. This will help ensure accurate assessment and timely processing of your faculty performance evaluation.</p>
+        </div>
+        
+        <h3 className="text-lg font-semibold mb-2">Instructions</h3>
+        <ol className="list-decimal pl-5 space-y-2">
+          <li>Faculty member should enter their self-evaluation scores based on the prescribed performance indicators and criteria.</li>
+          <li>Completed appraisal form along with necessary proofs should be submitted to the Head of the Department by the specified deadline.</li>
+          <li>Head of the department shall verify scores submitted by the faculty and provide their assessment.</li>
+          <li>The external evaluator will do the assessment based on the documentation provided and may request additional information if needed.</li>
+          <li>The Head of the department after complete evaluation will forward the appraisal to the Dean for final review and approval.</li>
+        </ol>
+        
+        <div className="mt-6 flex items-center mb-4">
+          <input
+            type="checkbox"
+            id="confirmation"
+            checked={isConfirmed}
+            onChange={(e) => setIsConfirmed(e.target.checked)}
+            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+          />
+          <label htmlFor="confirmation" className="ml-2 text-sm text-gray-600">
+            I confirm that I have read and understood all the instructions above
+          </label>
+        </div>
+        
+        <div className="flex justify-between mt-6">
+          <div></div>
+          <button
+            className={`px-4 py-2 rounded ${
+              isConfirmed 
+                ? 'bg-blue-500 text-white hover:bg-blue-600' 
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+            onClick={onNext}
+            disabled={!isConfirmed}
+          >
+            Next
+          </button>
+        </div>
+      </div>
+
+      {/* Login Activity Log - Admin Only */}
+      {userRole === 'admin' && (
+        <div className="mt-8">
+          <LoginActivityLog />
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Page0;
