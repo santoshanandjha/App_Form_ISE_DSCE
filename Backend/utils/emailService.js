@@ -1,3 +1,4 @@
+import nodemailer from 'nodemailer';
 import { logger, maskEmail } from './securityLogger.js';
 
 /* =========================
@@ -8,45 +9,71 @@ export const generateOTP = () => {
 };
 
 /* =========================
-   Send Email via Resend
+   Send Email via Gmail SMTP or Resend
 ========================= */
-const sendEmailViaResend = async (to, subject, html, text) => {
+const sendEmail = async (to, subject, html, text) => {
+  const SMTP_EMAIL = process.env.SMTP_EMAIL;
+  const SMTP_PASSWORD = process.env.SMTP_PASSWORD;
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
-  const FROM_EMAIL = process.env.FROM_EMAIL || 'AMS DSCE <no-reply@amsdsce.com>';
+  const FROM_EMAIL = process.env.FROM_EMAIL || process.env.SMTP_EMAIL || 'AMS DSCE <no-reply@amsdsce.com>';
 
-  if (!RESEND_API_KEY) {
-    console.log(`\n==================================================`);
-    console.log(`📧 [DEV MOCK EMAIL SERVICE]`);
-    console.log(`To: ${to}`);
-    console.log(`Subject: ${subject}`);
-    console.log(`Content: ${text}`);
-    console.log(`==================================================\n`);
-    return { id: 'mock-dev-email-id', status: 'mocked' };
-  }
+  // Option 1: Send via Gmail SMTP if configured
+  if (SMTP_EMAIL && SMTP_PASSWORD && SMTP_EMAIL !== 'your-email@gmail.com') {
+    console.log(`📧 Sending email via Gmail SMTP to: ${to}`);
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: Number(process.env.SMTP_PORT) || 587,
+      secure: false,
+      auth: {
+        user: SMTP_EMAIL,
+        pass: SMTP_PASSWORD
+      }
+    });
 
-  console.log(`📧 Sending email via Resend to: ${to}`);
-
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: FROM_EMAIL,
-      to: [to],
-      subject: subject,
-      html,
+    const info = await transporter.sendMail({
+      from: `AMS DSCE <${SMTP_EMAIL}>`,
+      to,
+      subject,
       text,
-    }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to send email');
+      html
+    });
+    return { id: info.messageId, status: 'sent' };
   }
 
-  return await response.json();
+  // Option 2: Send via Resend if API key present
+  if (RESEND_API_KEY) {
+    console.log(`📧 Sending email via Resend to: ${to}`);
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: FROM_EMAIL,
+        to: [to],
+        subject: subject,
+        html,
+        text,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to send email');
+    }
+
+    return await response.json();
+  }
+
+  // Option 3: Fallback Dev Console Log
+  console.log(`\n==================================================`);
+  console.log(`📧 [DEV MOCK EMAIL SERVICE]`);
+  console.log(`To: ${to}`);
+  console.log(`Subject: ${subject}`);
+  console.log(`Content: ${text}`);
+  console.log(`==================================================\n`);
+  return { id: 'mock-dev-email-id', status: 'mocked' };
 };
 
 /* =========================
@@ -72,7 +99,7 @@ export const sendOTPEmail = async (email, otp) => {
 
     const text = `Your OTP for account verification is: ${otp}. Valid for 10 minutes.`;
 
-    const result = await sendEmailViaResend(
+    const result = await sendEmail(
       email,
       'Your Account Verification OTP',
       html,
@@ -108,7 +135,7 @@ export const sendWelcomeEmail = async (email, role) => {
 
     const text = `Welcome! Your account has been created with the role: ${role}.`;
 
-    await sendEmailViaResend(
+    await sendEmail(
       email,
       'Welcome to Appraisal Management System',
       html,
@@ -148,7 +175,7 @@ export const sendPasswordResetOTP = async (email, otp, role) => {
 
     const text = `Your Password Reset OTP: ${otp}. Valid for 10 minutes.`;
 
-    const result = await sendEmailViaResend(
+    const result = await sendEmail(
       email,
       'Password Reset OTP',
       html,
