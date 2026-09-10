@@ -108,7 +108,7 @@ const Auth = () => {
         toast.success("Welcome back!");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "An error occurred");
+      toast.error(error.response?.data?.message || (error.code === 'ERR_NETWORK' ? "Cannot reach backend server. Check API URL configuration." : "An error occurred"));
     } finally {
       setLoading(false);
     }
