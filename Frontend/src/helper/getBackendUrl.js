@@ -10,7 +10,7 @@ export const getBackendApiUrl = () => {
 
   if (isProductionDomain) {
     // Override local or dead tunnel URLs with active Cloudflare Tunnel URL
-    if (!envUrl || envUrl.includes('localhost') || envUrl.includes('127.0.0.1') || envUrl.includes('loca.lt')) {
+    if (!envUrl || envUrl.includes('localhost') || envUrl.includes('127.0.0.1') || envUrl.includes('loca.lt') || !envUrl.startsWith('https://')) {
       return PUBLIC_FALLBACK_URL;
     }
   }
