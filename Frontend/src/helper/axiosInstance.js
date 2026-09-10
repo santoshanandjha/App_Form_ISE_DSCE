@@ -9,6 +9,7 @@ axiosInstance.defaults.withCredentials = true;
 // Add request interceptor to include token in headers
 axiosInstance.interceptors.request.use(
   (config) => {
+    config.headers["Bypass-Tunnel-Reminder"] = "true";
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

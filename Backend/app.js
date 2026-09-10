@@ -15,15 +15,21 @@ app.use(cookieParser())
 app.use(express.urlencoded({ limit: "50mb", extended: true }))
 
 // CORS Configuration - supports multiple origins
+const defaultAllowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://isedsceapp.netlify.app'
+];
+
 const allowedOrigins = process.env.CLIENT_URL ? 
-  process.env.CLIENT_URL.split(',').map(origin => origin.trim()) : 
-  ['http://localhost:5173'];
+  [...defaultAllowedOrigins, ...process.env.CLIENT_URL.split(',').map(origin => origin.trim())] : 
+  defaultAllowedOrigins;
 
 app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (mobile apps, Postman, etc.)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) {
+        if (allowedOrigins.includes(origin) || origin.endsWith('.netlify.app') || origin.endsWith('.loca.lt')) {
             callback(null, true);
         } else {
             console.warn(`CORS blocked origin: ${origin}`);
