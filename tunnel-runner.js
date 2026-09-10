@@ -3,7 +3,7 @@ import fs from 'fs';
 
 function startTunnel() {
   console.log('🚀 Starting Localtunnel on port 9000...');
-  const tunnel = spawn('npx', ['-y', 'localtunnel', '--port', '9000'], {
+  const tunnel = spawn('npx', ['-y', 'localtunnel', '--port', '9000', '--subdomain', 'ams-dsce-backend'], {
     shell: true,
     stdio: 'pipe'
   });
