@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import RoleBasedInput from "../components/RoleBasedInput";
 import RemarksBox from "../components/RemarksBox";
 import { useRoleBasedData } from "../hooks/useRoleBasedData";
+import { getFullMediaUrl } from "../helper/mediaUrl";
 
 const Page3 = ({ formData, setFormData, onNext, onPrevious, isReadOnly, userRole }) => {
   const [previewImages, setPreviewImages] = useState({});
@@ -103,7 +104,7 @@ const Page3 = ({ formData, setFormData, onNext, onPrevious, isReadOnly, userRole
   };
 
   const showImagePreview = (key) => {
-    const fileUrl = formData[`${key}Image`];
+    let fileUrl = formData[`${key}Image`];
     if (!fileUrl) {
       alert("No file uploaded for this field");
       return;
@@ -199,7 +200,8 @@ const Page3 = ({ formData, setFormData, onNext, onPrevious, isReadOnly, userRole
       alert("Pop-up blocked. Please allow pop-ups for this site to view the file.");
     }
   } else {
-    // Handle Cloudinary URLs or other external URLs
+    // Handle Cloudinary URLs or relative server URLs
+    fileUrl = getFullMediaUrl(fileUrl);
     if (!fileUrl) {
       console.error("No file uploaded for this field");
       return;

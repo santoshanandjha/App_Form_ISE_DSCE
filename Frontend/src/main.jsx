@@ -11,40 +11,62 @@ import { Provider } from "react-redux";
 import { store } from "./redux/store";
 import ThankYouPage from './components/ThankYouPage.jsx'
 
-const appRouter=createBrowserRouter([
+const appRouter = createBrowserRouter([
   {
-    path:"/",
-    element:
-    <>
-        <Provider store={store}>
-
-    <Auth />
-    <Toaster />
-    </Provider>
-
-    </>
+    path: "/",
+    element: (
+      <Provider store={store}>
+        <Auth />
+        <Toaster />
+      </Provider>
+    )
   },
   {
-    path:"/page",
-    element:
-
-    <>
-    <Provider store={store}>
-    <App />
-    <Toaster />
-    </Provider>
-    </>
-  },{
-    path:"/tankyouPage",
-    element:
-    <>
-    <Provider store={store}>
-    <ThankYouPage />
-    <Toaster />
-    </Provider>
-    </>
+    path: "/page",
+    element: (
+      <Provider store={store}>
+        <App />
+        <Toaster />
+      </Provider>
+    )
+  },
+  {
+    path: "/tankyouPage",
+    element: (
+      <Provider store={store}>
+        <ThankYouPage />
+        <Toaster />
+      </Provider>
+    )
+  },
+  {
+    path: "/thankyouPage",
+    element: (
+      <Provider store={store}>
+        <ThankYouPage />
+        <Toaster />
+      </Provider>
+    )
+  },
+  {
+    path: "/thankYouPage",
+    element: (
+      <Provider store={store}>
+        <ThankYouPage />
+        <Toaster />
+      </Provider>
+    )
+  },
+  {
+    path: "*",
+    element: (
+      <Provider store={store}>
+        <Auth />
+        <Toaster />
+      </Provider>
+    )
   }
-])
+]);
 ReactDOM.createRoot(document.getElementById('root')).render(
   <RouterProvider router={appRouter} />
 )
