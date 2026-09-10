@@ -1,9 +1,10 @@
 import axios from "axios";
+import { getBackendApiUrl } from "./getBackendUrl";
 
 const axiosInstance = axios.create();
 
-// Use environment variable for API URL, fallback to permanent fixed backend URL
-axiosInstance.defaults.baseURL = import.meta.env.VITE_API_URL || "https://venue-verification-shed-simultaneously.trycloudflare.com/app";
+// Use smart backend URL resolver
+axiosInstance.defaults.baseURL = getBackendApiUrl();
 axiosInstance.defaults.withCredentials = true;
 
 // Add request interceptor to include token in headers
