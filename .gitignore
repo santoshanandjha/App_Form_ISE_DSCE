@@ -32,3 +32,8 @@ Thumbs.db
 # Cache directories
 .cache/
 .tmp/
+
+# Tunnel binaries & temporary files
+cloudflared
+cloudflared.tgz
+.current_tunnel_url

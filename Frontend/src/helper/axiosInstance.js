@@ -3,7 +3,7 @@ import axios from "axios";
 const axiosInstance = axios.create();
 
 // Use environment variable for API URL, fallback to permanent fixed backend URL
-axiosInstance.defaults.baseURL = import.meta.env.VITE_API_URL || "https://ams-dsce-backend.loca.lt/app";
+axiosInstance.defaults.baseURL = import.meta.env.VITE_API_URL || "https://venue-verification-shed-simultaneously.trycloudflare.com/app";
 axiosInstance.defaults.withCredentials = true;
 
 // Add request interceptor to include token in headers
