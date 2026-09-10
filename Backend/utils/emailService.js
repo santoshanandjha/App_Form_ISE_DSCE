@@ -12,18 +12,19 @@ export const generateOTP = () => {
 ========================= */
 const sendEmailViaResend = async (to, subject, html, text) => {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
-  // Updated to match your Render Environment Key
-  const FROM_EMAIL = process.env.FROM_EMAIL;
+  const FROM_EMAIL = process.env.FROM_EMAIL || 'AMS DSCE <no-reply@amsdsce.com>';
 
   if (!RESEND_API_KEY) {
-    throw new Error('RESEND_API_KEY not configured');
+    console.log(`\n==================================================`);
+    console.log(`📧 [DEV MOCK EMAIL SERVICE]`);
+    console.log(`To: ${to}`);
+    console.log(`Subject: ${subject}`);
+    console.log(`Content: ${text}`);
+    console.log(`==================================================\n`);
+    return { id: 'mock-dev-email-id', status: 'mocked' };
   }
 
-  if (!FROM_EMAIL) {
-    throw new Error('FROM_EMAIL environment variable is missing');
-  }
-
-  console.log(`📧 Sending email to: ${to}`);
+  console.log(`📧 Sending email via Resend to: ${to}`);
 
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -32,8 +33,8 @@ const sendEmailViaResend = async (to, subject, html, text) => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: FROM_EMAIL, // Uses "AMS DSCE <no-reply@amsdsce.com>"
-      to: [to],        // Sends directly to the user's email
+      from: FROM_EMAIL,
+      to: [to],
       subject: subject,
       html,
       text,
