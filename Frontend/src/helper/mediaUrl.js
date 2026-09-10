@@ -10,7 +10,7 @@ export const getFullMediaUrl = (fileUrl) => {
   // If it's a relative backend uploads path, prepend backend origin
   if (fileUrl.startsWith('/uploads/') || fileUrl.startsWith('uploads/')) {
     const cleanPath = fileUrl.startsWith('/') ? fileUrl : `/${fileUrl}`;
-    const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:9000/app';
+    const apiBase = import.meta.env.VITE_API_URL || 'https://ams-dsce-backend.loca.lt/app';
     const backendOrigin = apiBase.replace(/\/app\/?$/, '');
     return `${backendOrigin}${cleanPath}`;
   }

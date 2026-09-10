@@ -2,8 +2,8 @@ import axios from "axios";
 
 const axiosInstance = axios.create();
 
-// Use environment variable for API URL, fallback to localhost for development
-axiosInstance.defaults.baseURL = import.meta.env.VITE_API_URL || "http://localhost:9000/app";
+// Use environment variable for API URL, fallback to permanent fixed backend URL
+axiosInstance.defaults.baseURL = import.meta.env.VITE_API_URL || "https://ams-dsce-backend.loca.lt/app";
 axiosInstance.defaults.withCredentials = true;
 
 // Add request interceptor to include token in headers
