@@ -261,11 +261,9 @@ const Auth = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email Address
-                  {isSignUp && (
-                    <span className="text-xs text-gray-500 ml-2">
-                      (Use {getDomainExample()})
-                    </span>
-                  )}
+                  <span className="text-xs text-gray-500 ml-2">
+                    (Use {getDomainExample()})
+                  </span>
                 </label>
                 <div className="relative">
                 <AtSign className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
